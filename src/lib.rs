@@ -108,14 +108,14 @@ fn alloc_get(ctx: &Context, args: Vec<String>) -> RedisResult {
 //////////////////////////////////////////////////////
 
 redis_module! {
-    name: "tdigest",
+    name: "percentile",
     version: 1,
     data_types: [
         MY_REDIS_TYPE,
     ],
     commands: [
-        ["tdigest.merge", alloc_merge_unsorted, "write"],
-        ["tdigest.mergesorted", alloc_merge_sorted, "write"],
-        ["tdigest.get", alloc_get, "readonly"],
+        ["percentile.merge", alloc_merge_unsorted, "write"],
+        ["percentile.mergesorted", alloc_merge_sorted, "write"],
+        ["percentile.get", alloc_get, "readonly"],
     ],
 }

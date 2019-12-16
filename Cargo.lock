@@ -249,7 +249,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "redis-t-digest"
+name = "redis-percentile"
 version = "0.1.0"
 dependencies = [
  "redis-module 0.5.0 (registry+https://github.com/rust-lang/crates.io-index)",

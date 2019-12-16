@@ -1,7 +1,7 @@
 [package]
-name = "redis-t-digest"
+name = "redis-percentile"
 version = "0.1.0"
-authors = ["Poga Po <poga.bahamut@gmail.com>"]
+authors = ["Poga Po <poga.po@gmail.com>"]
 edition = "2018"
 
 [lib]
