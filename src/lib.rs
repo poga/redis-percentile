@@ -11,7 +11,7 @@ struct MyType {
 }
 
 static MY_REDIS_TYPE: RedisType = RedisType::new(
-    "mytype123",
+    "tdigest",
     0,
     raw::RedisModuleTypeMethods {
         version: raw::REDISMODULE_TYPE_METHOD_VERSION as u64,
@@ -35,7 +35,12 @@ unsafe extern "C" fn free(value: *mut c_void) {
     Box::from_raw(value as *mut MyType);
 }
 
-fn alloc_merge_unsorted(ctx: &Context, args: Vec<String>) -> RedisResult {
+enum MergeType {
+    SORTED,
+    UNSORTED,
+}
+
+fn merge(ctx: &Context, args: Vec<String>, merge: MergeType, size: usize) -> RedisResult {
     if args.len() < 2 {
         return Err(RedisError::WrongArity);
     }
@@ -59,8 +64,11 @@ fn alloc_merge_unsorted(ctx: &Context, args: Vec<String>) -> RedisResult {
             // key.set_value(&MY_REDIS_TYPE, value)?;
         }
         None => {
-            let mut data = TDigest::new_with_size(10);
-            data = data.merge_unsorted(nums);
+            let mut data = TDigest::new_with_size(size);
+            match merge {
+                MergeType::SORTED => data = data.merge_sorted(nums),
+                MergeType::UNSORTED => data = data.merge_unsorted(nums),
+            }
             key.set_value(&MY_REDIS_TYPE, MyType { data })?;
         }
     }
@@ -68,14 +76,29 @@ fn alloc_merge_unsorted(ctx: &Context, args: Vec<String>) -> RedisResult {
     Ok(len.into())
 }
 
+fn alloc_merge_unsorted(ctx: &Context, args: Vec<String>) -> RedisResult {
+    merge(ctx, args, MergeType::UNSORTED, 10)
+}
+
+fn alloc_merge_sorted(ctx: &Context, args: Vec<String>) -> RedisResult {
+    merge(ctx, args, MergeType::SORTED, 10)
+}
+
 fn alloc_get(ctx: &Context, args: Vec<String>) -> RedisResult {
+    if args.len() < 2 {
+        return Err(RedisError::WrongArity);
+    }
+
     let mut args = args.into_iter().skip(1);
     let key = args.next_string()?;
+
+    let percentile_str = args.next_string()?;
+    let percentile = parse_float(&percentile_str)?;
 
     let key = ctx.open_key(&key);
 
     let value = match key.get_value::<MyType>(&MY_REDIS_TYPE)? {
-        Some(value) => value.data.estimate_quantile(0.9).to_string().into(),
+        Some(value) => value.data.estimate_quantile(percentile).into(),
         None => ().into(),
     };
 
@@ -85,13 +108,14 @@ fn alloc_get(ctx: &Context, args: Vec<String>) -> RedisResult {
 //////////////////////////////////////////////////////
 
 redis_module! {
-    name: "alloc",
+    name: "tdigest",
     version: 1,
     data_types: [
         MY_REDIS_TYPE,
     ],
     commands: [
         ["tdigest.merge", alloc_merge_unsorted, "write"],
+        ["tdigest.mergesorted", alloc_merge_sorted, "write"],
         ["tdigest.get", alloc_get, "readonly"],
     ],
 }
