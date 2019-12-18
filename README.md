@@ -17,17 +17,27 @@ $ redis-server --loadmodule target/debug/libredis_percentile.so
 
 ```PERCENTILE.MERGE <key> values...```
 
+Merge a list of numbers into `<key>`.
+
 response: len(values)
 
 ### PERCENTILE.MERGESORTED
 
 ```PERCENTILE.MERGESORTED <key> values...```
 
+Merge a sorted list of numbers into `<key>`.
+
 response: len(values)
 
 
 ### PERCENTILE.GET
 
- ```PERCENTILE.GET KEY percentile```
+ ```PERCENTILE.GET <key> <percentile>```
 
  response: estimated value of percentile
+
+ ##### example
+
+ ```
+ PERCENTILE.GET foo 0.9
+ ```
