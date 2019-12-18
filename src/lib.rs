@@ -61,7 +61,6 @@ fn merge(ctx: &Context, args: Vec<String>, merge: MergeType, size: usize) -> Red
         Some(value) => {
             let new_data = value.data.merge_unsorted(nums);
             value.data = new_data
-            // key.set_value(&MY_REDIS_TYPE, value)?;
         }
         None => {
             let mut data = TDigest::new_with_size(size);
@@ -77,11 +76,11 @@ fn merge(ctx: &Context, args: Vec<String>, merge: MergeType, size: usize) -> Red
 }
 
 fn alloc_merge_unsorted(ctx: &Context, args: Vec<String>) -> RedisResult {
-    merge(ctx, args, MergeType::UNSORTED, 10)
+    merge(ctx, args, MergeType::UNSORTED, 100)
 }
 
 fn alloc_merge_sorted(ctx: &Context, args: Vec<String>) -> RedisResult {
-    merge(ctx, args, MergeType::SORTED, 10)
+    merge(ctx, args, MergeType::SORTED, 100)
 }
 
 fn alloc_get(ctx: &Context, args: Vec<String>) -> RedisResult {
