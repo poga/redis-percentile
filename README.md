@@ -1,6 +1,6 @@
 # redis-percentile
 
-Efficient percentile estimation of streaming or distributed data with [t-digest](https://github.com/MnO2/t-digest) algorithm.
+Redis module for efficient percentile estimation of streaming or distributed data with [t-digest](https://github.com/MnO2/t-digest) algorithm.
 
 ## Usage
 
